@@ -9,3 +9,10 @@ window.addEventListener('DOMContentLoaded', () => {
     replaceText(`${dependency}-version`, process.versions[dependency])
   }
 })
+
+// 进程通讯
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    setTitle: (title) => ipcRenderer.send('set-title', title)
+})

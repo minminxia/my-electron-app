@@ -7,10 +7,16 @@
     <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <title>my first electron app</title>
   </head>
-  <body>
+  <body>    
     <h1>Hello World!</h1>
     We are using Node.js <span id="node-version"></span>,
     Chromium <span id="chrome-version"></span>,
     and Electron <span id="electron-version"></span>.
+
+    <!-- // 主进程和渲染进程之间通讯 -->
+    Title: <input id="title"/>
+    <button id="btn" type="button">Set</button>
+    <script src="./renderer.js"></script>
   </body>
+  
 </html>

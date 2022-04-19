@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
 const createWindow = () => {
@@ -33,6 +33,13 @@ const createWindow = () => {
   })
   mainWindow2.loadFile('index2.html')
 }
+
+// 进程通讯
+ipcMain.on('set-title', (event, title) => {
+  const webContents = event.sender
+  const win = BrowserWindow.fromWebContents(webContents)
+  win.setTitle(title)
+})
 
 
 
