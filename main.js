@@ -1,8 +1,17 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
+
+async function handleFileOpen() {
+  const { canceled, filePaths } = await dialog.showOpenDialog()
+  if (canceled) {
+    return
+  } else {
+    return filePaths[0]
+  }
+}
 
 const createWindow = () => {
   // Create the browser window.
@@ -22,19 +31,20 @@ const createWindow = () => {
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
-  const mainWindow2 = new BrowserWindow({
-    width: 400,
-    height: 300,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    },
-    // 父进程关闭则子进程关闭
-    parent: mainWindow
-  })
-  mainWindow2.loadFile('index2.html')
+  // 创建第二个窗口
+  // const mainWindow2 = new BrowserWindow({
+  //   width: 400,
+  //   height: 300,
+  //   webPreferences: {
+  //     preload: path.join(__dirname, 'preload.js')
+  //   },
+  //   // 父进程关闭则子进程关闭
+  //   parent: mainWindow
+  // })
+  // mainWindow2.loadFile('index2.html')
 }
 
-// 进程通讯
+// 进程通讯(渲染进程->主进程)
 ipcMain.on('set-title', (event, title) => {
   const webContents = event.sender
   const win = BrowserWindow.fromWebContents(webContents)
@@ -47,6 +57,9 @@ ipcMain.on('set-title', (event, title) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // 进程通讯(主进程->渲染进程)
+  ipcMain.handle('dialog:openFile', handleFileOpen)
+
   createWindow()
 
   app.on('activate', () => {

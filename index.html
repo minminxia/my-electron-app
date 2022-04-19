@@ -14,8 +14,14 @@
     and Electron <span id="electron-version"></span>.
 
     <!-- // 主进程和渲染进程之间通讯 -->
+    <!-- 渲染进程-> 主进程 -->
     Title: <input id="title"/>
     <button id="btn" type="button">Set</button>
+
+    <!-- // 主进程-> 渲染进程 -->
+    <button type="button" id="btn1">Open a File</button>
+    File path: <strong id="filePath"></strong>
+
     <script src="./renderer.js"></script>
   </body>
   
