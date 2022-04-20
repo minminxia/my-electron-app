@@ -16,7 +16,7 @@ class AppWindow extends BrowserWindow{
     const finalConfig = {...basicConfig, ...config}
     super(finalConfig)
     this.loadFile(fileLocation)
-    
+
     // 在加载页面时，渲染进程第一次完成绘制时，如果窗口还没有被显示，渲染进程会发出 ready-to-show 事件 。 在此事件后显示窗口将没有视觉闪烁：
     this.once('ready-to-show', () => {
       this.show()
@@ -38,7 +38,7 @@ const createWindow = () => {
   // mainWindow.loadFile('./renderer/index.html')
   const mainWindow = new AppWindow({},'./renderer/index.html')
 
-  ipcMain.on('add-music-window', ()=>{
+  ipcMain.on('add-music-window', () => {
     console.log('hello from index page');
 
     const addWindow = new AppWindow({
@@ -46,10 +46,32 @@ const createWindow = () => {
       height: 300,
       parent: mainWindow
     }, './renderer/add.html')
+
+    // 选择本地文件
+    ipcMain.on('select-music', () => {
+      console.log('select-music');
+
+      dialog.showOpenDialog({
+        title: 'title',
+        properties: ['openFile', 'multiSelections'],
+        filters: [
+          { name: 'Music', extensions: ['mp3'] }
+        ]
+      }).then(res => {
+        console.log(res.canceled);
+        console.log(res.filePaths);
+      }).catch(err => {
+        console.log(err);
+      })
+
+    })
+
+    // Open the DevTools.
+    addWindow.webContents.openDevTools()
   })
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
 }
 
@@ -70,5 +92,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+// 用于保存后端自动刷新
+try {
+  require('electron-reloader')(module,{});
+} catch (_) {}

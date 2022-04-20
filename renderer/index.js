@@ -1,7 +1,9 @@
 // import {ipcRenderer} from 'electron';
+import { $ } from './helper.js';
 
-const addMusicBtn = document.getElementById('addMusicBtn')
-addMusicBtn.addEventListener('click', ()=>{
+$('addMusicBtn').addEventListener('click', ()=>{
+  console.log('addMusicBtnClick');
   // ipcRenderer.send('addMusicWindow')
   window.electronAPI.addMusicWindow()
 })
+
