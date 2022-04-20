@@ -1,21 +1,7 @@
-// main.js
-
-// Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
 
-async function handleFileOpen() {
-  const { canceled, filePaths } = await dialog.showOpenDialog()
-  if (canceled) {
-    return
-  } else {
-    return filePaths[0]
-  }
-}
-
 const createWindow = () => {
-  // Create the browser window.
-  // 主进程
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -26,51 +12,25 @@ const createWindow = () => {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile('./renderer/index.html')
+  ipcMain.on('add-music-window', ()=>{
+    console.log('hello from index page');
+
+    const addWindow = new BrowserWindow({
+      width: 400,
+      height: 300,
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js')
+      },
+      parent: mainWindow
+    })
+    addWindow.loadFile('./renderer/add.html')
+  })
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
-  // 创建第二个窗口
-  const mainWindow2 = new BrowserWindow({
-    width: 1000,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    },
-    // 父进程关闭则子进程关闭
-    parent: mainWindow
-  })
-
-  // page2-counter
-  const menu = Menu.buildFromTemplate([
-    {
-      label: app.name,
-      submenu: [
-        {
-          click: () => mainWindow2.webContents.send('update-counter', 1),
-          label: 'Increment',
-        },
-        {
-          click: () => mainWindow2.webContents.send('update-counter', -1),
-          label: 'Decrement',
-        }
-      ]
-    }
-  ])
-  Menu.setApplicationMenu(menu)
-  mainWindow2.loadFile('index2.html')
-
-  // Open the DevTools.
-  mainWindow2.webContents.openDevTools()
 }
-
-// 进程通讯(渲染进程->主进程)
-ipcMain.on('set-title', (event, title) => {
-  const webContents = event.sender
-  const win = BrowserWindow.fromWebContents(webContents)
-  win.setTitle(title)
-})
 
 
 
@@ -78,16 +38,6 @@ ipcMain.on('set-title', (event, title) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  // 进程通讯(主进程->渲染进程)
-  // Listen for events with ipcMain.handle
-  // https://www.electronjs.org/zh/docs/latest/tutorial/ipc
-  ipcMain.handle('dialog:openFile', handleFileOpen)
-  
-  // page2-counter
-  ipcMain.on('counter-value', (_event, value) => {
-    console.log(value) // will print value to Node console
-  })
-
   createWindow()
 
   app.on('activate', () => {
