@@ -1,30 +1,51 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    // 渲染进程-可以写js、nodejs等
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+// 创建窗口类
+class AppWindow extends BrowserWindow{
+  constructor(config, fileLocation){
+    const basicConfig = {
+      width: 800,
+      height: 600,
+      // 渲染进程-可以写js、nodejs等
+      webPreferences: {
+        preload: path.join(__dirname, 'preload.js')
+      }
     }
-  })
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('./renderer/index.html')
+    const finalConfig = {...basicConfig, ...config}
+    super(finalConfig)
+    this.loadFile(fileLocation)
+    
+    // 在加载页面时，渲染进程第一次完成绘制时，如果窗口还没有被显示，渲染进程会发出 ready-to-show 事件 。 在此事件后显示窗口将没有视觉闪烁：
+    this.once('ready-to-show', () => {
+      this.show()
+    })
+  }
+}
+
+const createWindow = () => {
+  // const mainWindow = new BrowserWindow({
+  //   width: 800,
+  //   height: 600,
+  //   // 渲染进程-可以写js、nodejs等
+  //   webPreferences: {
+  //     preload: path.join(__dirname, 'preload.js')
+  //   }
+  // })
+
+  // // and load the index.html of the app.
+  // mainWindow.loadFile('./renderer/index.html')
+  const mainWindow = new AppWindow({},'./renderer/index.html')
+
   ipcMain.on('add-music-window', ()=>{
     console.log('hello from index page');
 
-    const addWindow = new BrowserWindow({
+    const addWindow = new AppWindow({
       width: 400,
       height: 300,
-      webPreferences: {
-        preload: path.join(__dirname, 'preload.js')
-      },
       parent: mainWindow
-    })
-    addWindow.loadFile('./renderer/add.html')
+    }, './renderer/add.html')
   })
 
   // Open the DevTools.
@@ -32,11 +53,6 @@ const createWindow = () => {
 
 }
 
-
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow()
 
