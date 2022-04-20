@@ -1,7 +1,7 @@
 // main.js
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
 const path = require('path')
 
 async function handleFileOpen() {
@@ -32,16 +32,37 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools()
 
   // 创建第二个窗口
-  // const mainWindow2 = new BrowserWindow({
-  //   width: 400,
-  //   height: 300,
-  //   webPreferences: {
-  //     preload: path.join(__dirname, 'preload.js')
-  //   },
-  //   // 父进程关闭则子进程关闭
-  //   parent: mainWindow
-  // })
-  // mainWindow2.loadFile('index2.html')
+  const mainWindow2 = new BrowserWindow({
+    width: 1000,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    },
+    // 父进程关闭则子进程关闭
+    parent: mainWindow
+  })
+
+  // page2-counter
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.name,
+      submenu: [
+        {
+          click: () => mainWindow2.webContents.send('update-counter', 1),
+          label: 'Increment',
+        },
+        {
+          click: () => mainWindow2.webContents.send('update-counter', -1),
+          label: 'Decrement',
+        }
+      ]
+    }
+  ])
+  Menu.setApplicationMenu(menu)
+  mainWindow2.loadFile('index2.html')
+
+  // Open the DevTools.
+  mainWindow2.webContents.openDevTools()
 }
 
 // 进程通讯(渲染进程->主进程)
@@ -58,7 +79,14 @@ ipcMain.on('set-title', (event, title) => {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // 进程通讯(主进程->渲染进程)
+  // Listen for events with ipcMain.handle
+  // https://www.electronjs.org/zh/docs/latest/tutorial/ipc
   ipcMain.handle('dialog:openFile', handleFileOpen)
+  
+  // page2-counter
+  ipcMain.on('counter-value', (_event, value) => {
+    console.log(value) // will print value to Node console
+  })
 
   createWindow()
 
