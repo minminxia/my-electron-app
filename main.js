@@ -1,5 +1,19 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
+
+async function handleFileOpen() {
+  const dialogConfig = {
+    title: 'title',
+    properties: ['openFile', 'multiSelections'],
+    filters: [{ name: 'Music', extensions: ['mp3'] }]
+  }
+  const { canceled, filePaths } = await dialog.showOpenDialog(dialogConfig)
+  if (canceled) {
+    return
+  } else {
+    return filePaths
+  }
+}
 
 // 创建窗口类
 class AppWindow extends BrowserWindow{
@@ -42,35 +56,36 @@ const createWindow = () => {
     console.log('hello from index page');
 
     const addWindow = new AppWindow({
-      width: 400,
+      width: 800,
       height: 300,
       parent: mainWindow
     }, './renderer/add.html')
 
     // 选择本地文件
-    ipcMain.on('select-music', () => {
-      console.log('select-music');
-
-      dialog.showOpenDialog({
-        title: 'title',
-        properties: ['openFile', 'multiSelections'],
-        filters: [
-          { name: 'Music', extensions: ['mp3'] }
-        ]
-      }).then(res => {
-        console.log(res.canceled);
-        console.log(res.filePaths);
-      }).catch(err => {
-        console.log(err);
-      })
-
-    })
-
-    // Open the DevTools.
-    addWindow.webContents.openDevTools()
+    // 新版写法：通过处理preload的ipcRenderer.invoke获取文件
+    ipcMain.handle('dialog:openFile', handleFileOpen)
+    // 老写法，通过监听preload的ipcRenderer.send来选取本地文件
+    // ipcMain.on('select-music', (event) => {
+    //   console.log('select-music');
+    //   dialog.showOpenDialog({
+    //     title: 'title',
+    //     properties: ['openFile', 'multiSelections'],
+    //     filters: [
+    //       { name: 'Music', extensions: ['mp3'] }
+    //     ]
+    //   }).then(res => {
+    //     console.log(res.canceled);
+    //     console.log(res.filePaths);
+    //     const files = res.filePaths
+    //     // 将主进程拿到的文件路径发给添加页面（渲染进程）
+    //     event.sender.send('select-files', files)
+    //   }).catch(err => {
+    //     console.log(err);
+    //   })
+    // })
   })
 
-  // Open the DevTools.
+  // Open the DevTools.也可以直接通过浏览器的快捷键o+c+i
   mainWindow.webContents.openDevTools()
 
 }
