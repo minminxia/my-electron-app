@@ -3,10 +3,13 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
   addMusicWindow: () => ipcRenderer.send('add-music-window'),
+
   selectMusic: () => ipcRenderer.send('select-music'),
 
   // 通过invoke去通知主进程ipcMain.handle获取文件
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
+
+  addMusic: (musicFilePaths) => ipcRenderer.send('add-music', musicFilePaths),
 
 
 })

@@ -1,25 +1,29 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
-const Store = require('electron-store');
+// const Store = require('electron-store');
+const dataStore = require('./renderer/MusicDataStore');
+const myStore = new dataStore({'name':'Music Data'})
 
-const store = new Store();
-console.log(app.getPath('userData'));
+// =================electron-store的试用 
+// const store = new Store();
+// console.log(app.getPath('userData'));
 // cd /Users/liuminxia/Library/Application\ Support/my-first-electron-app
 // ls
 // cat config.js即可看到数据，因为new Store()没有命名，默认就是config.js
 
-store.set('unicorn', '🦄');
-console.log(store.get('unicorn'));
-//=> '🦄'
+// store.set('unicorn', '🦄');
+// console.log(store.get('unicorn'));
+// //=> '🦄'
 
-// Use dot-notation to access nested properties
-store.set('foo.bar', true);
-console.log(store.get('foo'));
-//=> {bar: true}
+// // Use dot-notation to access nested properties
+// store.set('foo.bar', true);
+// console.log(store.get('foo'));
+// //=> {bar: true}
 
-store.delete('unicorn');
-console.log(store.get('unicorn'));
-//=> undefined
+// store.delete('unicorn');
+// console.log(store.get('unicorn'));
+// //=> undefined
+// =================electron-store的试用 
 
 async function handleFileOpen() {
   const dialogConfig = {
@@ -103,6 +107,14 @@ const createWindow = () => {
     //     console.log(err);
     //   })
     // })
+
+    // 导入音乐
+    ipcMain.on('add-music',(event, musicFilePaths)=>{
+      console.log('监听到addMusic消息', musicFilePaths);
+      // 把消息发给index,js渲染进程（两个渲染进程如何通讯？）
+      const updateTracks = myStore.addTracks(musicFilePaths).getTracks()
+      console.log(updateTracks);
+    })
   })
 
   // Open the DevTools.也可以直接通过浏览器的快捷键o+c+i
@@ -128,6 +140,6 @@ app.on('window-all-closed', () => {
 })
 
 // 用于保存后端自动刷新
-try {
-  require('electron-reloader')(module,{});
-} catch (_) {}
+// try {
+//   require('electron-reloader')(module,{});
+// } catch (_) {}

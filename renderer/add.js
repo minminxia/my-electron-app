@@ -1,6 +1,7 @@
 import { $ } from './helper.js';
 // const path = require('path')
 
+let musicFilePaths = []
 const renderListHtml = (filePaths) => {
   const musicItemsHTML = filePaths.reduce((html, music)=>{
     html += `<li class="list-group-item">${music}</li>`
@@ -11,6 +12,7 @@ const renderListHtml = (filePaths) => {
   $('filePath').innerHTML = `<ul class="list-group">${musicItemsHTML}</ul>`
 }
 
+// 选择音乐
 $('selectMusicBtn').addEventListener('click', async()=>{
   console.log('selectMusicBtnClick');
   // window.electronAPI.selectMusic()
@@ -18,6 +20,7 @@ $('selectMusicBtn').addEventListener('click', async()=>{
   console.log(filePaths);
   if(Array.isArray(filePaths)){
     renderListHtml(filePaths)
+    musicFilePaths = filePaths
   }
 })
 
@@ -30,3 +33,10 @@ $('selectMusicBtn').addEventListener('click', async()=>{
 //   }
 
 // })
+
+// 导入音乐
+$('addMusicBtn').addEventListener('click', ()=>{
+  console.log('addMusicBtn');
+  // 发送选择的音乐到主进程，主进程通知index.js渲染导入的音乐
+  window.electronAPI.addMusic(musicFilePaths)
+})
