@@ -1,5 +1,25 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
+const Store = require('electron-store');
+
+const store = new Store();
+console.log(app.getPath('userData'));
+// cd /Users/liuminxia/Library/Application\ Support/my-first-electron-app
+// ls
+// cat config.js即可看到数据，因为new Store()没有命名，默认就是config.js
+
+store.set('unicorn', '🦄');
+console.log(store.get('unicorn'));
+//=> '🦄'
+
+// Use dot-notation to access nested properties
+store.set('foo.bar', true);
+console.log(store.get('foo'));
+//=> {bar: true}
+
+store.delete('unicorn');
+console.log(store.get('unicorn'));
+//=> undefined
 
 async function handleFileOpen() {
   const dialogConfig = {
