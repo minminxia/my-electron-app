@@ -29,6 +29,7 @@ class DataStore extends Store {
   }
   deleteTrack(deletedId) {
     this.tracks = this.tracks.filter(item => item.id !== deletedId)
+    console.log('删除后的list', this.tracks);
     return this.saveTracks()
   }
 }

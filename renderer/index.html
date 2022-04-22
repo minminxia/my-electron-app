@@ -5,21 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>本地播放器</title>
   <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 </head>
 <body>
-  <div class="container mt-4">
+  <div class="container mt-4 d-grid gap-2">
     <h1>我的播放器</h1>
-    <button id="addMusicBtn" type="button" class="btn btn-lg btn-primary btn-dark mt-4">
+
+    <button id="addMusicBtn" type="button" class="btn btn-lg btn-primary mt-4">
       添加歌曲到曲库
     </button>
+
+    <div id="tracksList" class="mt-4">
+    </div>
+
+    <audio controls src="" id="audioDom"></audio>
+
   </div>
 
   <!-- type="module":https://blog.csdn.net/cc18868876837/article/details/113915176 -->
   <script type="module" src="./index.js"></script>
-<!-- 
-  <script>
-    require('./index.js')
-  </script> -->
 
 </body>
 </html>

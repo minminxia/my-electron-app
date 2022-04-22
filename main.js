@@ -43,8 +43,8 @@ async function handleFileOpen() {
 class AppWindow extends BrowserWindow{
   constructor(config, fileLocation){
     const basicConfig = {
-      width: 800,
-      height: 600,
+      width: 1000,
+      height: 800,
       // 渲染进程-可以写js、nodejs等
       webPreferences: {
         preload: path.join(__dirname, 'preload.js')
@@ -74,14 +74,23 @@ const createWindow = () => {
 
   // // and load the index.html of the app.
   // mainWindow.loadFile('./renderer/index.html')
+
   const mainWindow = new AppWindow({},'./renderer/index.html')
+  mainWindow.webContents.on('did-finish-load', ()=>{
+    console.log('page-did-finish-load');
+    const updateTracks = myStore.getTracks()
+    console.log('主进程拿到的electron-store的数据', updateTracks);
+    // 主进程->渲染进程
+    // mainWindow.send('get-tracks', updateTracks)
+    mainWindow.webContents.send('get-tracks', updateTracks)
+  })
 
   ipcMain.on('add-music-window', () => {
     console.log('hello from index page');
 
     const addWindow = new AppWindow({
       width: 800,
-      height: 300,
+      height: 600,
       parent: mainWindow
     }, './renderer/add.html')
 
@@ -112,9 +121,19 @@ const createWindow = () => {
     ipcMain.on('add-music',(event, musicFilePaths)=>{
       console.log('监听到addMusic消息', musicFilePaths);
       // 把消息发给index,js渲染进程（两个渲染进程如何通讯？）
+      // 另一个渲染时机是：首次进入渲染（使用Event: 'did-finish-load'：导航完成时触发，即选项卡的旋转器将停止旋转，并指派onload事件后。）
       const updateTracks = myStore.addTracks(musicFilePaths).getTracks()
       console.log(updateTracks);
+      // mainWindow.send('get-tracks', updateTracks)
+      mainWindow.webContents.send('get-tracks', updateTracks)
     })
+  })
+
+  // 收到渲染进程删除当前音乐消息
+  ipcMain.on('delete-track', (event, id) => {
+    console.log('收到渲染进程删除当前音乐消息', id);
+    const updatedTracks = myStore.deleteTrack(id).getTracks()
+    mainWindow.webContents.send('get-tracks', updatedTracks)
   })
 
   // Open the DevTools.也可以直接通过浏览器的快捷键o+c+i

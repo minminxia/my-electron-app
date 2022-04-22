@@ -11,5 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   addMusic: (musicFilePaths) => ipcRenderer.send('add-music', musicFilePaths),
 
+  getTracks: (callback) => ipcRenderer.on('get-tracks', callback),
+
+  deleteTracks: (id) => ipcRenderer.send('delete-track', id)
 
 })
