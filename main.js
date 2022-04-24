@@ -141,24 +141,24 @@ const createWindow = () => {
 
 }
 
+// 在 Electron 中，只有在 app 模块的 ready 事件被激发后才能创建浏览器窗口
 app.whenReady().then(() => {
   createWindow()
 
+  // 窗口无法在 ready 事件前创建，so在初始化后监听 activate 事件
   app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
+    // 如果没有窗口打开则打开一个窗口 (macOS)
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// 在Windows和Linux上，关闭所有窗口通常会完全退出一个应用程序。
+// 为了实现这一点，监听 app 模块的 'window-all-closed' 事件。如果用户不是在 macOS(darwin) 上运行程序，则调用 app.quit()。
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// 用于保存后端自动刷新
+// 用于保存后端自动刷新（直接用nodemon更好）
 // try {
 //   require('electron-reloader')(module,{});
 // } catch (_) {}

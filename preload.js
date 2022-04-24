@@ -1,4 +1,5 @@
-// 进程通讯
+// 所有Node.js API都可以在预加载过程中使用。
+// 它拥有与Chrome扩展一样的沙盒。
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {

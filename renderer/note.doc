@@ -1,0 +1,55 @@
+
+====== Electron是什么 ======
+Electron是一个使用 JavaScript、HTML 和 CSS 构建桌面应用程序的框架。 嵌入 Chromium 和 Node.js 到 二进制的 Electron 允许您保持一个 JavaScript 代码代码库并创建 在Windows上运行的跨平台应用 macOS和Linux——不需要本地开发 经验。
+
+====== 主进程(main.js) =====
+特点：
+单一；
+应用程序的入口点；
+在Node.js环境中运行，so具有require模块和使用所有NodeJs API的能力。
+
+作用：
+使用BrowserWindow 模块创建和管理应用程序窗口。
+能通过 Electron 的 app 模块来控制应用程序的生命周期。
+
+使用：
+在package.json中添加： "main": "main.js",
+
+
+====== 预加载脚本（preload.js） =====
+Q：问什么需要预加载脚本？
+你不能直接在主进程中编辑DOM，因为它无法访问渲染器文档上下文。 它们存在于完全不同的进程！
+
+作用：
+连接到渲染器
+（预加载脚本在渲染器进程加载之前加载，并有权访问两个渲染器全局 (例如 window 和 document) 和 Node.js 环境。）
+
+使用：
+在现有的 BrowserWindow 构造器中将路径中的预加载脚本传入 webPreferences.preload 选项。
+
+const path = require('path')
+const createWindow = () => {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+  win.loadFile('index.html')
+}
+扩展：
+这里使用了两个Node.js概念：
+__dirname 字符串指向当前正在执行脚本的路径 (在本例中，它指向你的项目的根文件夹)。
+path.join API 将多个路径联结在一起，创建一个跨平台的路径字符串。
+
+
+====== 渲染器进程（index.html） =====
+渲染网页内容
+
+Q：如何给网页内容添加交互？
+ 由于渲染器运行在正常的 Web 环境中，因此您可以在 index.html 文件关闭 </body> 标签之前添加一个 <script> 标签，来包括您想要的任意脚本：
+ <script src="./renderer.js"></script>
+ Q: 什么叫任意脚本？
+可以是js,vue,react等任何前端框架
+
