@@ -53,3 +53,10 @@ Q：如何给网页内容添加交互？
  Q: 什么叫任意脚本？
 可以是js,vue,react等任何前端框架
 
+
+====== 分发 =====
+手动
+Electron Packager
+Electron Builder
+
+
